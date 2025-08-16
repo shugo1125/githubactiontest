@@ -1,12 +1,41 @@
 name: learn-github-actions
-on: [push]
+on:
+ push:
+      branches: [main]
+ pull_request:
+          branches: [main]
 jobs:
-  check-bats-version:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "this is pens"
-      - uses: actions/checkout@v2
-      - run : |
-          ls -al
-          cd .github/workflows/
-          ls -al
+    - uses: actions/checkout@v2
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+    - name: Install dependencies
+      run: npm install
+    - name: Build
+      run: npm run build
+    - name: Danger
+      uses: danger/danger-js@11.0.2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        DANGER_DISABLE_TRANSPILATION: true
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+    - name: Install dependencies
+      run: npm install
+    - name: Run ESLint
+      run: npm run lint
+    - name: Danger
+      uses: danger/danger-js@11.0.2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        DANGER_DISABLE_TRANSPILATION: true  
